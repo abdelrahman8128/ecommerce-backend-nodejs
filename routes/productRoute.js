@@ -1,4 +1,6 @@
 const express = require("express");
+const authService=require('../services/authService');
+const reviewRoute=require('./reviewRoute');
 
 const {
   getProductValidator,
@@ -13,17 +15,46 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadProductImages,
+  resizeProductImages,
 } = require("../services/productService");
+
+
 
 const router = express.Router();
 
-router.route("/").get(getProducts).post(createProductValidator, createProduct);
+router.use('/:productId/reviews',reviewRoute);
+
+
+router
+  .route("/")
+  .get(getProducts)
+  .post( 
+    authService.protect,
+    authService.allowedTo("admin"),
+    uploadProductImages,
+    resizeProductImages,
+    createProductValidator,
+    createProduct
+  );
 
 router
   .route("/:id")
   .get(getProductValidator, getProduct)
 
-  .put(updateProductValidator, updateProduct)
-  .delete(deleteProductValidator, deleteProduct);
+  .put(
+    authService.protect,
+    authService.allowedTo("admin"),
+    uploadProductImages,
+    resizeProductImages,
+    updateProductValidator,
+    updateProduct
+  )
+  .delete(
+    authService.protect,
+    authService.allowedTo("admin"),
+     deleteProductValidator,
+     deleteProduct
+  );
 
 module.exports = router;

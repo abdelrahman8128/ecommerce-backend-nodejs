@@ -18,6 +18,14 @@ const brandSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+//findOne, findAll, update , create
+
+brandSchema.post(['init','save'], (doc) =>{
+  doc.image=`${process.env.BASE_URL}/brands/${doc.image}`;
+}
+); 
+
 const brandModel = mongoose.model("brand", brandSchema);
 
 module.exports = brandModel;

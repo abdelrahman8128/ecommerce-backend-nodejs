@@ -69,7 +69,28 @@ const productSchema = new mongoose.Schema({
     max: [5, "Rating must be below or equal 5.0"],
     default: 0,
   },
-});
+
+},
+{
+  timestamps: true,
+
+  //to enable virtuals
+  toJSON: {
+    virtuals: true,
+  },
+  toObject: {
+    virtuals: true,
+  },
+}
+);
+
+
+productSchema.virtual('Reviews',{
+  ref:'Review',
+  localField:'_id',
+  foreignField:'product',
+ 
+})
 
 productSchema.pre(/^find/, function (next) {
   this.populate({
@@ -78,5 +99,17 @@ productSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
+//findOne, findAll, update , create
+productSchema.post(['init','save'], (doc) =>{
+  if (doc.imageCover) {
+    doc.imageCover=`${process.env.BASE_URL}/products/${doc.image}`;
+
+  }
+  if (doc.images) {
+    doc.images = doc.images.map((img) => `${process.env.BASE_URL}/products/${img}`);
+  }
+}
+);
 
 module.exports = mongoose.model("Product", productSchema);

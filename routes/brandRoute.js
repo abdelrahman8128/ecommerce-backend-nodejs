@@ -1,4 +1,5 @@
 const express =require('express');
+const authService=require('../services/authService');
 
 const {
     getBrandValidator,
@@ -13,11 +14,24 @@ const {
     getBrands,
     updateBrand,
     deleteBrand,    
+    uploadBrandImage,
+    resizeImage,
     }=require('../services/brandService');
 
 const router = express.Router();
 
-router.route('/').get(getBrands).post(createBrandValidator,createBrand);
+router.route('/')
+.get(
+    getBrands
+)
+.post(
+    authService.protect,
+    authService.allowedTo("admin"),
+    uploadBrandImage,
+    resizeImage,
+    createBrandValidator,
+    createBrand,
+);
 
 router.route('/:id')
     .get(
@@ -25,10 +39,17 @@ router.route('/:id')
         getBrand,
     )
 
-    .put(UpdateBrandValidator,
+    .put(
+        authService.protect,
+        authService.allowedTo("admin"),
+        uploadBrandImage,
+        resizeImage,
+        UpdateBrandValidator,
         updateBrand
     )
     .delete(
+        authService.protect,
+        authService.allowedTo("admin"),
         deleteBrandValidator,
         deleteBrand
     );
@@ -36,7 +57,6 @@ router.route('/:id')
 
 
 
-router.route('/test').get((req,res)=>{res.json({data:'a7aaa'})});
 
 
 module.exports=router;

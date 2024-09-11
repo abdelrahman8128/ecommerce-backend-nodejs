@@ -1,12 +1,11 @@
-const { check,body } = require("express-validator");
-const slugify=require("slugify");
+const { check, body } = require("express-validator");
+const slugify = require("slugify");
 
-const validatorMiddlewar = require("../../middlewares/validatorMiddlewar");
-
+const validatorMiddleware = require("../../middlewares/validatorMiddleware");
 
 exports.getBrandValidator = [
-  check("id").isMongoId().withMessage("Invalid caategory id format"),
-  validatorMiddlewar,
+  check("id").isMongoId().withMessage("Invalid brand id format"),
+  validatorMiddleware,
 ];
 
 exports.createBrandValidator = [
@@ -21,20 +20,22 @@ exports.createBrandValidator = [
       req.body.slug = slugify(val);
       return true;
     }),
-  validatorMiddlewar,
+  validatorMiddleware,
 ];
 
 exports.UpdateBrandValidator = [
   check("id").isMongoId().withMessage("Invalid brrand id format"),
-  body('name').custom((val, { req }) => {
-    req.body.slug = slugify(val);
-    return true;
-  }),
+  body("name")
+    .optional()
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
 
-  validatorMiddlewar,
+  validatorMiddleware,
 ];
 
 exports.deleteBrandValidator = [
   check("id").isMongoId().withMessage("Invalid brrand id format"),
-  validatorMiddlewar,
+  validatorMiddleware,
 ];

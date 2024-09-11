@@ -19,6 +19,17 @@ const categorySchema = new mongoose.Schema({
 { timestamps: true }
 );
 
+
+
+//findOne, findAll, update , create
+categorySchema.post(['init','save'], (doc) =>{
+    doc.image=`${process.env.BASE_URL}/categories/${doc.image}`;
+  }
+); 
+
+
+
+// create model
 const categoryModel = mongoose.model('Category', categorySchema);
 
 module.exports=categoryModel;
