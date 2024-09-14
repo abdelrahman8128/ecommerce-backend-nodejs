@@ -160,7 +160,7 @@ try{
   const shippingAddress=session.metadate;
   const orderPrice=session.amount_total;
   const cart= await Cart.findById(cartId);
-  const user=User.findOne({email:session.customer_email});
+  const user=await User.findOne({email:session.customer_email});
 
 
   const order = await Order.create({
