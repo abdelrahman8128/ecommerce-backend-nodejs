@@ -155,11 +155,10 @@ try{
 const  createCardOrder=async (session)=>{
 try{
 
-  console.log(session);
 
   const cartId= session.client_reference_id;
   const shippingAddress=session.metadate;
-  const orderPrice=session.line_item_group.total;
+  const orderPrice=session.amount_total;
   const cart= await Cart.findById(cartId);
   const user=User.findOne({email:session.customer_email});
 
