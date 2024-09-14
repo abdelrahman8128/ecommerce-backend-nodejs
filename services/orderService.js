@@ -99,9 +99,8 @@ exports.updateOrderToDeliverd = async function (req, res, next) {
 
 exports.getCheckoutSession = async (req, res, next) => {
 
-try{  //1)get cart depend on cartId
-  
-
+try{
+//1)get cart depend on cartId
   const cart = await Cart.findById(req.params.cartId);
   if (!cart) {
     return next(new ApiError("Cart not found", 404));
@@ -113,20 +112,8 @@ try{  //1)get cart depend on cartId
     ? cart.totalPriceAfterDiscount
     : cart.totalCartPrice;
 
-
-
-
-
-
-
-
-
-
-
 //3) Create stripe checkout session
   const session = await stripe.checkout.sessions.create(
-    
-
 
     {
 
@@ -147,17 +134,11 @@ try{  //1)get cart depend on cartId
 
     ],
     mode:'payment',
-
     success_url: `${req.protocol}://${req.get("host")}/orders/`,
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
     customer_email:req.user.email,
     client_reference_id:req.params.cartId,
     metadata:req.body.shippingAddress,
-
-
-    
-
-  
   });
 
   res.status(200).json({
@@ -172,11 +153,11 @@ try{  //1)get cart depend on cartId
 
 
 const  createCardOrder=async (session)=>{
-  try{
-    const cartId= session.client_reference_id;
-  const shippingAddress=session.metadate;
-  const orderPrice=session.display_items[0].amount/100;
+try{
 
+  const cartId= session.client_reference_id;
+  const shippingAddress=session.metadate;
+  const orderPrice=session.line_item_group.total;
   const cart= await Cart.findById(cartId);
   const user=User.findOne({email:session.customer_email});
 
@@ -227,7 +208,7 @@ exports.webhookCheckout =async(req,res,next)=>{
       createCardOrder(event.data.object);
       // TODO: Handle the checkout.session.completed event
 
-      
+
       
     } 
   
