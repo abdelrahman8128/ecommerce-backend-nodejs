@@ -17,15 +17,23 @@ const dbConnection = require("./config/database");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 
+const {webhookCheckout} = require("./services/orderService");
+
 dbConnection();
 
 const app = express();
-
 
 //enable other domains oto access your application (cors)
 app.use(cors());
 app.options("*", cors());
 app.use(compression());
+
+//checkout webhook
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 //middle wares
 

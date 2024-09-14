@@ -97,16 +97,6 @@ exports.updateOrderToDeliverd = async function (req, res, next) {
 //@access Protected/User
 
 
-
-
-
-
-
-
-
-
-
-
 exports.getCheckoutSession = async (req, res, next) => {
 
 try{  //1)get cart depend on cartId
@@ -178,5 +168,32 @@ try{  //1)get cart depend on cartId
   catch(err){
     return next(new ApiError(err.message,500));
   }
-}
+};
+
+
+
+
+exports.webhookCheckout =async(req,res,next)=>{
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      // TODO: Handle the checkout.session.completed event
+
+      console.log('create order here');
+    } 
+  
+  }
+  catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  
+
+};
 
