@@ -172,7 +172,8 @@ try{  //1)get cart depend on cartId
 
 
 const  createCardOrder=async (session)=>{
-  const cartId= session.client_reference_id;
+  try{
+    const cartId= session.client_reference_id;
   const shippingAddress=session.metadate;
   const orderPrice=session.display_items[0].amount/100;
 
@@ -200,7 +201,9 @@ const  createCardOrder=async (session)=>{
     }));
     await Product.bulkWrite(bulkOption, {});
     await Cart.findByIdAndDelete(cartId);
-  } 
+  } }catch(e){
+    console.error('Error processing a webhook:', e.message);
+  }
   
 };
 
