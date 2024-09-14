@@ -171,6 +171,45 @@ try{  //1)get cart depend on cartId
 };
 
 
+const  createCardOrder=async (session)=>{
+  const cartId= session.client_reference_id;
+  const shippingAddress=session.metadate;
+  const orderPrice=session.display_items[0].amount/100;
+
+  const cart= await Cart.findById(cartId);
+  const user=User.findOne({email:session.customer_email});
+
+
+  const order = await Order.create({
+    user: user._id,
+    cartItems: cart.cartItems,
+    totalOrderPrice:orderPrice,
+    shippingAddress,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethod:'card',
+  });
+
+  
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    await Product.bulkWrite(bulkOption, {});
+    await Cart.findByIdAndDelete(cartId);
+  } 
+  
+};
+
+
+
+
+
+
+
 
 
 exports.webhookCheckout =async(req,res,next)=>{
@@ -182,10 +221,11 @@ exports.webhookCheckout =async(req,res,next)=>{
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
+      createCardOrder(event.data.object);
       // TODO: Handle the checkout.session.completed event
 
-      console.log('create order here');
+      
+      
     } 
   
   }
