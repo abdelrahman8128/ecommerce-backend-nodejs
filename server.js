@@ -30,9 +30,9 @@ app.use(compression());
 
 //checkout webhook
 app.post(
-  "/webhook",
+  "/webhook-checkout",
   express.raw({ type: "application/json" }),
-  webhookCheckout
+  webhookCheckout,
 );
 
 //middle wares
