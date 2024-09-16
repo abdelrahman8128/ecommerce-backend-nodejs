@@ -4,6 +4,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 //const morgan= require('morgan');
 
+const rateLimit = require('express-rate-limit');
+
+
 const cors = require("cors");
 
 const compression = require("compression");
@@ -17,7 +20,8 @@ const dbConnection = require("./config/database");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 
-const {webhookCheckout} = require("./services/orderService");
+const { webhookCheckout } = require("./services/orderService");
+
 
 dbConnection();
 
@@ -32,18 +36,27 @@ app.use(compression());
 app.post(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
-  webhookCheckout,
+  webhookCheckout
 );
 
 //middle wares
 
-app.use(express.json());
+app.use(express.json({ limit: "20kb" }));
 app.use(express.static(path.join(__dirname, "uploads")));
 
-// if (process.env.NODE_ENV === 'development'){
-//     app.use(morgan('dev'));
-//     console.log(`mode:${process.env.NODE_ENV}`);
-// }
+const limiter= rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5 ,// limit each IP to 100 requests per windowMs
+
+  message: "Too many requests from this IP, please try again later.",
+  statusCode: 429,
+ // onLimit: (req, res, next) => {
+
+
+})
+
+app.use('/api',limiter);
+
 
 mountRoutes(app);
 

@@ -158,7 +158,7 @@ try{
 
   const cartId= session.client_reference_id;
   const shippingAddress=session.metadate;
-  const orderPrice=session.amount_total;
+  const orderPrice=session.amount_total/100;
   const cart= await Cart.findById(cartId);
   const user=await User.findOne({email:session.customer_email});
 
@@ -170,7 +170,7 @@ try{
     shippingAddress,
     isPaid: true,
     paidAt: Date.now(),
-    paymentMethod:'card',
+    paymentMethodType:'card',
   });
 
   
